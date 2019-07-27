@@ -6,13 +6,17 @@ import { Link } from "react-router-dom";
 import { Col, Row, Container } from "../components/Grid";
 import { List, ListItem } from "../components/List";
 import { Input, TextArea, FormBtn } from "../components/Form";
+import { set } from "mongoose";
 
 class Books extends Component {
   state = {
     books: [],
     title: "",
     author: "",
-    synopsis: ""
+    image: "",
+    link: "",
+    synopsis: "",
+    key: ""
   };
 
   componentDidMount() {
@@ -20,11 +24,8 @@ class Books extends Component {
   }
 
   loadBooks = () => {
-    API.getBooks()
-      .then(res =>
-        this.setState({ books: res.data, title: "", author: "", synopsis: "" })
-      )
-      .catch(err => console.log(err));
+    this.setState({title: ""});
+    this.render()
   };
 
   deleteBook = id => {
@@ -42,12 +43,27 @@ class Books extends Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    if (this.state.title && this.state.author) {
-      API.saveBook({
-        title: this.state.title,
-        author: this.state.author,
-        synopsis: this.state.synopsis
+    this.setState({books: []});
+    if (this.state.title) {
+      API.getGoogleBook({
+        title: this.state.title
       })
+        .then(res => {
+          console.log(res);
+          res.data.items.map(book => {
+            let resBook = {
+            title: book.volumeInfo.title,
+            author: book.volumeInfo.authors[0],
+            image: book.volumeInfo.imageLinks.thumbnail,
+            link: book.volumeInfo.previewLink,
+            key: book.id,
+            synopsis: book.volumeInfo.description
+            };
+            const newBooks = this.state.books;
+            newBooks.push(resBook);
+          this.setState({ books: newBooks })
+          })
+        })
         .then(res => this.loadBooks())
         .catch(err => console.log(err));
     }
@@ -57,50 +73,45 @@ class Books extends Component {
     return (
       <Container fluid>
         <Row>
-          <Col size="md-6">
+          <Col size="md-12">
             <Jumbotron>
-              <h1>What Books Should I Read?</h1>
+              <h1>What Books ? Search!</h1>
             </Jumbotron>
             <form>
               <Input
                 value={this.state.title}
                 onChange={this.handleInputChange}
                 name="title"
-                placeholder="Title (required)"
-              />
-              <Input
-                value={this.state.author}
-                onChange={this.handleInputChange}
-                name="author"
-                placeholder="Author (required)"
-              />
-              <TextArea
-                value={this.state.synopsis}
-                onChange={this.handleInputChange}
-                name="synopsis"
-                placeholder="Synopsis (Optional)"
+                placeholder="Search Books"
               />
               <FormBtn
-                disabled={!(this.state.author && this.state.title)}
+                disabled={!(this.state.title)}
                 onClick={this.handleFormSubmit}
               >
-                Submit Book
+                Search Book
               </FormBtn>
             </form>
           </Col>
           <Col size="md-6 sm-12">
-            <Jumbotron>
-              <h1>Books On My List</h1>
-            </Jumbotron>
             {this.state.books.length ? (
               <List>
                 {this.state.books.map(book => (
-                  <ListItem key={book._id}>
-                    <Link to={"/books/" + book._id}>
+                  <ListItem key={book.key}>
+                    <img src={book.image}></img>
+                    <Link to={"/books/" + book.key}>
                       <strong>
                         {book.title} by {book.author}
                       </strong>
                     </Link>
+                    <Link to={book.link}>
+                      <strong>
+                        Check out Book
+                      </strong>
+                    </Link>
+                    <FormBtn
+                      onClick={() => this.saveBook(book.id)}>
+                        SAVE BOOK
+                      </FormBtn>
                     <DeleteBtn onClick={() => this.deleteBook(book._id)} />
                   </ListItem>
                 ))}

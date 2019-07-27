@@ -21,7 +21,7 @@ app.use(routes);
 // Define any API routes before this runs
 
 
-mongoose.connect(process.env.MONGODB_URI || "");
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/searchBook-32");
 
 // app.get("/api/books", (req, res) => {
 //   //all saved books JSON
