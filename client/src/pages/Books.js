@@ -14,7 +14,9 @@ class Books extends Component {
     author: "",
     image: "",
     link: "",
-    synopsis: ""
+    synopsis: "",
+    key: "",
+    id: 0
   };
 
   componentDidMount() {
@@ -24,7 +26,8 @@ class Books extends Component {
   loadBooks = () => {
     API.getBooks()
       .then(res =>
-        this.setState({ books: res.data, title: "", author: "", synopsis: "" })
+        this.setState({ 
+          books: res.data})
       )
       .catch(err => console.log(err));
   };
@@ -59,50 +62,26 @@ class Books extends Component {
     return (
       <Container fluid>
         <Row>
-          <Col size="md-6">
-            <Jumbotron>
-              <h1>What Books Should I Read?</h1>
-            </Jumbotron>
-            <form>
-              <Input
-                value={this.state.title}
-                onChange={this.handleInputChange}
-                name="title"
-                placeholder="Title (required)"
-              />
-              <Input
-                value={this.state.author}
-                onChange={this.handleInputChange}
-                name="author"
-                placeholder="Author (required)"
-              />
-              <TextArea
-                value={this.state.synopsis}
-                onChange={this.handleInputChange}
-                name="synopsis"
-                placeholder="Synopsis (Optional)"
-              />
-              <FormBtn
-                disabled={!(this.state.author && this.state.title)}
-                onClick={this.handleFormSubmit}
-              >
-                Submit Book
-              </FormBtn>
-            </form>
-          </Col>
-          <Col size="md-6 sm-12">
+          <Col size="md-12">
             <Jumbotron>
               <h1>Books On My List</h1>
             </Jumbotron>
             {this.state.books.length ? (
               <List>
                 {this.state.books.map(book => (
-                  <ListItem key={book._id}>
-                    <Link to={"/books/" + book._id}>
+                  <ListItem key={book.key}>
+                    <img src={book.image}></img>
+                    <Link to={"/books/" + book.key}>
                       <strong>
                         {book.title} by {book.author}
                       </strong>
                     </Link>
+                    <p>{book.synopsis}</p>
+                    <a href={book.link}>
+                      <strong>
+                        Check out Book
+                      </strong>
+                    </a>
                     <DeleteBtn onClick={() => this.deleteBook(book._id)} />
                   </ListItem>
                 ))}

@@ -16,7 +16,8 @@ class Books extends Component {
     image: "",
     link: "",
     synopsis: "",
-    key: ""
+    key: "",
+    id: 0
   };
 
   componentDidMount() {
@@ -35,11 +36,10 @@ class Books extends Component {
   };
 
   saveBook = id => {
-    console.log(id);
-    const saveData = this.state.books.filter(book => book.id = id);
-    console.log(saveData)
-    API.saveBook(saveData)
-      .then(res => this.loadBooks())
+    const saveData = this.state.books.filter(book => book.key == id);
+    console.log(id, saveData)
+    API.saveBook(saveData[0])
+    //   // .then(res => this.loadBooks())
       .catch(err => console.log(err));
   };
 
@@ -59,6 +59,7 @@ class Books extends Component {
       })
         .then(res => {
           console.log(res);
+          let numb = 0;
           res.data.items.map(book => {
             let resBook = {
             title: book.volumeInfo.title,
@@ -66,6 +67,7 @@ class Books extends Component {
             image: book.volumeInfo.imageLinks.thumbnail,
             link: book.volumeInfo.previewLink,
             key: book.id,
+            id: numb++,
             synopsis: book.volumeInfo.description
             };
             const newBooks = this.state.books;
@@ -111,24 +113,21 @@ class Books extends Component {
                       <strong>
                         {book.title} by {book.author}
                       </strong>
-                    </Link>
-                    <Link to={book.link}>
+                    </Link><br></br>
+                    <a href={book.link}>
                       <strong>
                         Check out Book
                       </strong>
-                    </Link>
+                    </a>
                     <FormBtn
                       data-key={book.key}
                       onClick={(evt) => {
                         const el = evt.target
-                        
-                        console.log(el.dataset.key)
                         this.saveBook(el.dataset.key)}}
                         >
                         SAVE BOOK
                       </FormBtn>
-                    <DeleteBtn onClick={() => this.deleteBook(book._id)} />
-                  </ListItem>
+                    </ListItem>
                 ))}
               </List>
             ) : (
