@@ -34,6 +34,15 @@ class Books extends Component {
       .catch(err => console.log(err));
   };
 
+  saveBook = id => {
+    console.log(id);
+    const saveData = this.state.books.filter(book => book.id = id);
+    console.log(saveData)
+    API.saveBook(saveData)
+      .then(res => this.loadBooks())
+      .catch(err => console.log(err));
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({
@@ -109,7 +118,13 @@ class Books extends Component {
                       </strong>
                     </Link>
                     <FormBtn
-                      onClick={() => this.saveBook(book.id)}>
+                      data-key={book.key}
+                      onClick={(evt) => {
+                        const el = evt.target
+                        
+                        console.log(el.dataset.key)
+                        this.saveBook(el.dataset.key)}}
+                        >
                         SAVE BOOK
                       </FormBtn>
                     <DeleteBtn onClick={() => this.deleteBook(book._id)} />
